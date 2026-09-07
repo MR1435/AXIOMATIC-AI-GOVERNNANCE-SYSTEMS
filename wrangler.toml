@@ -9,8 +9,7 @@ DEFAULT_COUNTY = "Shelby"
 DEFAULT_CITY = "Memphis"
 DEFAULT_ZIP = "38127"
 
-# Bind D1 after creating the database:
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "axiomatic-civic-intelligence"
-# database_id = "REPLACE_WITH_D1_DATABASE_ID"
+[[d1_databases]]
+binding = "DB"
+database_name = "axiomatic-civic-intelligence"
+database_id = "94c7f643-0404-4838-b4ab-37858345197f"
