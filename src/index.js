@@ -1,0 +1,83 @@
+const esc = (value = '') => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const modules = {
+  community: {
+    name: 'The Community Connects',
+    kicker: 'Neighborhood Intelligence',
+    question: 'What is happening around me?',
+    description: 'Local resources, neighborhood reports, projects, infrastructure, hearings, representatives, safety and public-service information.'
+  },
+  acr: {
+    name: 'Axiomatic Community Report',
+    kicker: 'Government Intelligence',
+    question: 'What is government doing?',
+    description: 'Budgets, contracts, ordinances, planning, public spending, school boards, government actions and institutional accountability.'
+  },
+  justice: {
+    name: 'Axiomatic Justice Sentinel',
+    kicker: 'Justice Accountability Intelligence',
+    question: 'Who is exercising legal authority, and what does the record show?',
+    description: 'Judges, prosecutors, attorneys, law enforcement, courts, complaints, discipline, discovery records and delay metrics.'
+  }
+};
+
+function shell({ title, body, module = '' }, env) {
+  const platform = env.PLATFORM_NAME || 'Axiomatic Civic Intelligence';
+  const location = `${env.DEFAULT_CITY || 'Memphis'}, ${env.DEFAULT_STATE || 'TN'} ${env.DEFAULT_ZIP || '38127'}`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>${esc(title)} · ${esc(platform)}</title>
+<style>
+:root{--bg:#0b0d10;--panel:#12161c;--panel2:#171c24;--text:#f4f7fb;--muted:#a8b2c0;--line:#2a3442;--accent:#e7e9ed;--radius:18px}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0a0c0f,#10141a);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}.wrap{max-width:1200px;margin:auto;padding:0 20px}.top{position:sticky;top:0;z-index:20;background:rgba(11,13,16,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brandrow{display:flex;gap:18px;align-items:center;justify-content:space-between;padding:16px 0}.brand{font-weight:850;letter-spacing:.02em}.location{border:1px solid var(--line);padding:10px 14px;border-radius:999px;color:var(--muted);font-size:14px}.nav{display:flex;gap:8px;overflow:auto;padding:0 0 14px}.nav a{padding:9px 12px;border-radius:10px;color:var(--muted);white-space:nowrap}.nav a:hover,.nav a.active{background:var(--panel2);color:var(--text)}
+.hero{padding:54px 0 28px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:12px;color:var(--muted);font-weight:800}.hero h1{font-size:clamp(38px,6vw,76px);line-height:.96;margin:12px 0 18px;max-width:930px}.hero p{max-width:790px;color:var(--muted);font-size:18px;line-height:1.65}.search{margin-top:28px;display:flex;gap:10px;background:var(--panel);border:1px solid var(--line);padding:9px;border-radius:16px}.search input{flex:1;background:transparent;border:0;color:white;padding:12px;font-size:16px;outline:none}.search button{border:0;border-radius:11px;padding:0 18px;font-weight:800;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:22px 0 50px}.card{background:linear-gradient(180deg,var(--panel),#10141a);border:1px solid var(--line);border-radius:var(--radius);padding:24px;min-height:260px;display:flex;flex-direction:column}.card h2{margin:8px 0 10px;font-size:26px}.card p{color:var(--muted);line-height:1.55}.card .go{margin-top:auto;padding-top:24px;font-weight:800}.scope{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.pill{font-size:12px;padding:7px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.section{padding:28px 0 54px}.section h2{font-size:32px}.split{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}.list{display:grid;gap:12px}.item{padding:15px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}.item b{display:block;margin-bottom:5px}.item span{color:var(--muted);font-size:14px}.footer{border-top:1px solid var(--line);padding:30px 0 50px;color:var(--muted)}
+@media(max-width:820px){.grid,.split{grid-template-columns:1fr}.hero{padding-top:34px}.brandrow{align-items:flex-start;flex-direction:column}.location{width:100%}.search{flex-direction:column}.search button{padding:12px}}
+</style>
+</head><body>
+<header class="top"><div class="wrap"><div class="brandrow"><a class="brand" href="/">${esc(platform)}</a><div class="location">Viewing: ${esc(location)} ▾</div></div><nav class="nav">
+<a href="/" class="${module===''?'active':''}">Home</a><a href="/my-area">My Area</a><a href="/community" class="${module==='community'?'active':''}">Community</a><a href="/government" class="${module==='acr'?'active':''}">Government</a><a href="/justice" class="${module==='justice'?'active':''}">Justice</a><a href="/records">Records</a><a href="/alerts">Alerts</a>
+</nav></div></header>
+<main>${body}</main><footer class="footer"><div class="wrap">One civic intelligence platform. Three distinct lenses. Shared verified records.</div></footer>
+</body></html>`;
+}
+
+function home(env) {
+  const cards = Object.entries(modules).map(([key,m]) => `<a class="card" href="/${key==='acr'?'government':key}"><div class="eyebrow">${esc(m.kicker)}</div><h2>${esc(m.name)}</h2><p><strong>${esc(m.question)}</strong></p><p>${esc(m.description)}</p><div class="go">Open module →</div></a>`).join('');
+  return shell({title:'Home',body:`<section class="hero"><div class="wrap"><div class="eyebrow">Civic knowledge graph</div><h1>Your community, government and justice system — in one organized place.</h1><p>Search once across public records, people, properties, projects, cases, agencies and jurisdictions. Records stay canonical underneath while each module explains them through its own mission.</p><form class="search" action="/search"><input name="q" placeholder="Search people, properties, cases, agencies, projects, addresses or ZIP codes" /><button>Search</button></form><div class="scope"><span class="pill">State</span><span class="pill">County</span><span class="pill">City</span><span class="pill">ZIP</span><span class="pill">Property</span></div></div></section><section><div class="wrap grid">${cards}</div></section>`},env);
+}
+
+function modulePage(key, env) {
+  const m = modules[key];
+  const examples = key==='community'
+    ? [['Neighborhood Dashboard','Reports, resources and notices tied to the selected geography.'],['Development Tracker','Projects, permits, hearings and affected ZIP codes.'],['Representatives','Verified local, county and state representation.'],['Infrastructure & Safety','Roads, outages, dumping, public hazards and services.']]
+    : key==='acr'
+    ? [['Government Actions','Ordinances, agendas, votes and agency decisions.'],['Money & Contracts','Budgets, contracts, incentives and public spending.'],['Planning & Development','Permits, land use, projects and public hearings.'],['Accountability','Conflicts, campaign finance, records and investigations.']]
+    : [['Judicial Profiles','Judges, election history, complaints and calendar metrics.'],['Prosecutors & Attorneys','Bar status, discipline, discovery disputes and case records.'],['Law Enforcement','Agencies, commanders, complaints and accountability records.'],['Court Intelligence','Cases, rulings, delay indicators and verified legal records.']];
+  const items = examples.map(([a,b])=>`<div class="item"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('');
+  return shell({title:m.name,module:key,body:`<section class="hero"><div class="wrap"><div class="eyebrow">${esc(m.kicker)}</div><h1>${esc(m.name)}</h1><p><strong>${esc(m.question)}</strong> ${esc(m.description)}</p><form class="search" action="/search"><input name="q" placeholder="Search within ${esc(m.name)}" /><input type="hidden" name="module" value="${esc(key)}"/><button>Search</button></form></div></section><section class="section"><div class="wrap split"><div class="panel"><h2>Core sections</h2><div class="list">${items}</div></div><div class="panel"><h2>Geographic context</h2><div class="list"><div class="item"><b>Statewide</b><span>Rules and records that apply across the state.</span></div><div class="item"><b>County</b><span>County government, courts, agencies and services.</span></div><div class="item"><b>Citywide</b><span>Municipal records inherited by applicable city ZIP codes.</span></div><div class="item"><b>ZIP / Property</b><span>Hyperlocal projects, permits, resources and records without duplicating source data.</span></div></div></div></div></section>`},env);
+}
+
+function simplePage(title, text, env) { return shell({title,body:`<section class="hero"><div class="wrap"><div class="eyebrow">Platform</div><h1>${esc(title)}</h1><p>${esc(text)}</p></div></section>`},env); }
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === '/api/health') return Response.json({ok:true, platform:env.PLATFORM_NAME || 'Axiomatic Civic Intelligence'});
+    if (url.pathname === '/') return new Response(home(env), {headers:{'content-type':'text/html;charset=UTF-8'}});
+    if (url.pathname === '/community') return new Response(modulePage('community',env),{headers:{'content-type':'text/html;charset=UTF-8'}});
+    if (url.pathname === '/government') return new Response(modulePage('acr',env),{headers:{'content-type':'text/html;charset=UTF-8'}});
+    if (url.pathname === '/justice') return new Response(modulePage('justice',env),{headers:{'content-type':'text/html;charset=UTF-8'}});
+    if (url.pathname === '/my-area') return new Response(simplePage('My Area','A geography-first dashboard will combine local, county, state and justice records for the selected ZIP or property.',env),{headers:{'content-type':'text/html;charset=UTF-8'}});
+    if (url.pathname === '/records') return new Response(simplePage('Records','Canonical source records live here once and can be published through Community Connects, ACR, Justice Sentinel, or any combination.',env),{headers:{'content-type':'text/html;charset=UTF-8'}});
+    if (url.pathname === '/alerts') return new Response(simplePage('Alerts','Watch ZIP codes, agencies, properties, officials, cases and projects from one notification center.',env),{headers:{'content-type':'text/html;charset=UTF-8'}});
+    if (url.pathname === '/search') { const q=url.searchParams.get('q')||''; return new Response(simplePage(`Search: ${q || 'All records'}`,'Unified search is scaffolded. The next database pass will connect this page to D1 entities, records, geographic scope and module-publication tables.',env),{headers:{'content-type':'text/html;charset=UTF-8'}}); }
+    return new Response('Not found',{status:404});
+  }
+};
